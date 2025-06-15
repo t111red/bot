@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Пользователь {{ user.name }} - Золотая рыбка{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Пользователь: {{ user.name }}</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{{ url_for('orders') }}" class="btn btn-sm btn-outline-orange">
+                <span data-feather="arrow-left"></span>
+                Назад
+            </a>
+        </div>
+    </div>
+
+    <!-- Информация о пользователе -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Данные пользователя</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Имя:</strong> {{ user.name }}</p>
+                            <p>
+                                <strong>Telegram ID:</strong> {{ user.telegram_id }}
+                                {% if user.username %}
+                                    <a href="https://t.me/{{ user.username }}" target="_blank" class="text-orange">
+                                        (@{{ user.username }}) <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                {% else %}
+                                    <a href="tg://user?id={{ user.telegram_id }}" target="_blank" class="text-orange">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                {% endif %}
+                            </p>
+                            <p><strong>Номер телефона:</strong> {{ user.phone }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Первый заказ:</strong> {{ user.created_at }}</p>
+                            <p><strong>Последняя активность:</strong> {{ user.last_activity }}</p>
+                            <p><strong>Заказов:</strong> {{ order_count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Заказы пользователя -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">История заказов</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Дата</th>
+                                    <th>Товары</th>
+                                    <th>Сумма</th>
+                                    <th>Промокод</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if orders %}
+                                    {% for order in orders %}
+                                        <tr>
+                                            <td>{{ order.id }}</td>
+                                            <td>{{ order.timestamp }}</td>
+                                            <td>{{ order.items }}</td>
+                                            <td>{{ order.total }} ₽</td>
+                                            <td>{{ order.promo_used }}</td>
+                                            <td>
+                                                <span class="badge rounded-pill text-white" 
+                                                      style="{% if order.status == 'Новый' %}background-color: #0dcaf0;{% endif %}
+                                                            {% if order.status == 'В работе' %}background-color: #0d6efd;{% endif %}
+                                                            {% if order.status == 'Завершён' %}background-color: #198754;{% endif %}">
+                                                    {{ order.status }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-sm btn-orange" title="Просмотр заказа">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">Нет заказов</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

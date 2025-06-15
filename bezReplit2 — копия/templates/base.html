@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Панель управления - Золотая рыбка{% endblock %}</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/orange-theme.css') }}?v={{ cache_buster }}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bs-primary: #FF8C00; /* Orange */
+            --bs-primary-rgb: 255, 140, 0;
+            --bs-primary-bg-subtle: rgba(255, 140, 0, 0.1);
+            --bs-link-color: #FF8C00;
+            --bs-link-hover-color: #FF6600;
+            --bs-btn-bg: #FF8C00;
+            --bs-btn-border-color: #FF8C00;
+            --bs-btn-hover-bg: #FF6600;
+            --bs-btn-hover-border-color: #FF6600;
+            --bs-btn-active-bg: #FF5500;
+            --bs-btn-active-border-color: #FF5500;
+        }
+        
+        .btn-primary {
+            background-color: #FF8C00;
+            border-color: #FF8C00;
+        }
+        
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #FF6600;
+            border-color: #FF6600;
+        }
+        
+        .btn-outline-primary {
+            color: #FF8C00;
+            border-color: #FF8C00;
+        }
+        
+        .btn-outline-primary:hover, .btn-outline-primary:focus {
+            background-color: #FF8C00;
+            border-color: #FF8C00;
+        }
+        
+        .navbar-brand.active, .nav-link.active {
+            color: #FF8C00 !important;
+        }
+        
+        .bg-primary {
+            background-color: #FF8C00 !important;
+        }
+        
+        .sidebar {
+            min-height: 100vh;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+        }
+        .sidebar-sticky {
+            position: sticky;
+            top: 0;
+            height: calc(100vh - 48px);
+            padding-top: 1rem;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        .sidebar .nav-link {
+            font-weight: 500;
+            color: var(--bs-body-color);
+        }
+        .sidebar .nav-link.active {
+            color: #FF8C00;
+        }
+        .navbar-brand {
+            min-width: 280px;
+            white-space: nowrap;
+            overflow: visible;
+            padding-top: .75rem;
+            padding-bottom: .75rem;
+            font-size: 1rem;
+            background-color: rgba(0, 0, 0, .25);
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+        }
+        .status-badge {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .status-online {
+            background-color: var(--bs-success);
+        }
+        .status-offline {
+            background-color: var(--bs-danger);
+        }
+        
+        .logo-img {
+            height: 30px;
+            margin-right: 10px;
+            filter: brightness(0) invert(1);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark sticky-top bg-dark p-0">
+        <a class="navbar-brand col-md-4 col-lg-3 me-0 px-3" href="/">
+            <img src="{{ url_for('static', filename='img/fish-logo.png') }}" alt="Золотая рыбка" class="logo-img">
+            <span class="d-inline-block" style="vertical-align: middle;">Золотая рыбка | Управление</span>
+        </a>
+        <div class="navbar-nav">
+            <div class="nav-item text-nowrap">
+                <a class="nav-link px-3" href="{{ url_for('logout') }}">Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+                <div class="sidebar-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <img src="{{ url_for('static', filename='img/fish-logo.png') }}" alt="Золотая рыбка" style="width: 80px; height: auto;">
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/admin' %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">
+                                <span data-feather="home"></span>
+                                Главная
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/orders' %}active{% endif %}" href="{{ url_for('orders') }}">
+                                <span data-feather="shopping-cart"></span>
+                                Заказы
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/leads' %}active{% endif %}" href="{{ url_for('leads') }}">
+                                <span data-feather="users"></span>
+                                Лиды
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('export_excel') }}">
+                                <span data-feather="file-text"></span>
+                                Экспорт в Excel
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/settings' %}active{% endif %}" href="{{ url_for('settings') }}">
+                                <span data-feather="settings"></span>
+                                Настройки
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
+    <script>
+        // Инициализация иконок Feather
+        document.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

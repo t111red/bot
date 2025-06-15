@@ -1,0 +1,152 @@
+/* Основные стили для приложения */
+body {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    padding-bottom: 60px;
+}
+
+.container {
+    max-width: 600px;
+    padding: 20px;
+}
+
+h1, h2 {
+    margin-bottom: 20px;
+    color: var(--bs-info);
+}
+
+/* Стили для списка выбранных товаров */
+.selected-items {
+    margin-top: 20px;
+}
+
+#selectedItems {
+    margin-top: 10px;
+}
+
+.selected-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 15px;
+}
+
+.remove-item {
+    color: var(--bs-danger);
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Адаптивность для маленьких экранов */
+@media (max-width: 576px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .d-flex {
+        flex-direction: column;
+    }
+    
+    .d-flex .btn {
+        margin-left: 0 !important;
+    }
+}
+
+/* Анимации для переходов между шагами */
+.step {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.step.fade-out {
+    opacity: 0;
+}
+
+.step.fade-in {
+    opacity: 1;
+}
+
+/* Стилизация карточки итогового заказа */
+.card {
+    background-color: var(--bs-dark);
+    border: 1px solid var(--bs-info);
+}
+
+.card-title {
+    color: var(--bs-info);
+}
+
+/* Кастомизация цветов кнопок */
+.btn-primary {
+    background-color: var(--bs-info);
+    border-color: var(--bs-info);
+}
+
+.btn-primary:hover {
+    background-color: var(--bs-info-emphasis);
+    border-color: var(--bs-info-emphasis);
+}
+
+.btn-success {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+}
+
+.btn-success:hover {
+    background-color: var(--bs-success-emphasis);
+    border-color: var(--bs-success-emphasis);
+}
+
+/* Адаптация к теме Telegram */
+:root[data-theme="dark"] {
+    --tg-theme-bg-color: var(--bs-dark);
+    --tg-theme-text-color: var(--bs-light);
+    --tg-theme-hint-color: var(--bs-secondary);
+    --tg-theme-link-color: var(--bs-info);
+    --tg-theme-button-color: var(--bs-info);
+    --tg-theme-button-text-color: var(--bs-dark);
+}
+
+/* Стили специфичные для Telegram WebApp */
+.tg-app {
+    background-color: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+}
+
+/* Стилизация полей ввода */
+.form-control {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-secondary);
+    color: var(--bs-light);
+}
+
+.form-control:focus {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    border-color: var(--bs-info);
+    box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.25);
+}
+
+/* Стилизация селектов */
+.form-select {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-secondary);
+    color: var(--bs-light);
+}
+
+.form-select:focus {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    border-color: var(--bs-info);
+    box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.25);
+}
+
+/* Анимации для прогресс-бара */
+.progress-bar {
+    transition: width 0.5s ease-in-out;
+    background-color: var(--bs-info);
+}

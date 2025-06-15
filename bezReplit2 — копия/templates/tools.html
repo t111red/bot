@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+
+{% block title %}Инструменты - Золотая рыбка{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div class="d-flex align-items-center">
+            <img src="/static/img/fish-logo.png" alt="Логотип Золотая рыбка" style="height: 60px; margin-right: 15px;">
+            <h1 class="h2">Инструменты бота</h1>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Резервная копия базы данных -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="mb-0">Резервное копирование</h5>
+                </div>
+                <div class="card-body">
+                    <p>Создание и скачивание резервной копии базы данных бота.</p>
+                    <button id="downloadBackupBtn" class="btn btn-orange">
+                        <i class="fas fa-database"></i> Скачать резервную копию БД
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Архивация файлов -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="mb-0">Архивация файлов</h5>
+                </div>
+                <div class="card-body">
+                    <p>Создание архива со всеми файлами бота, включая исходный код и ресурсы.</p>
+                    <button id="downloadArchiveBtn" class="btn btn-orange">
+                        <i class="fas fa-archive"></i> Скачать архив файлов
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Рассылка сообщений -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="mb-0">Рассылка сообщений</h5>
+                </div>
+                <div class="card-body">
+                    <form id="broadcastForm" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="broadcastText" class="form-label">Текст сообщения</label>
+                            <textarea class="form-control" id="broadcastText" name="broadcast_text" rows="5" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="broadcastImage" class="form-label">Изображение (опционально)</label>
+                            <input class="form-control" type="file" id="broadcastImage" name="broadcast_image" accept="image/*">
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="sendAll" name="send_all" checked>
+                                <label class="form-check-label" for="sendAll">Отправить всем пользователям</label>
+                            </div>
+                        </div>
+                        <div class="mb-3" id="userGroupDiv" style="display: none;">
+                            <label for="userGroup" class="form-label">Группа пользователей</label>
+                            <select class="form-select" id="userGroup" name="user_group">
+                                <option value="active">Активные пользователи</option>
+                                <option value="new">Новые пользователи (за последний месяц)</option>
+                                <option value="customers">Клиенты (оформившие заказы)</option>
+                                <option value="leads">Незавершенные лиды</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-orange" id="sendBroadcastBtn">
+                            <i class="fas fa-paper-plane"></i> Отправить рассылку
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Документация бота -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="mb-0">Документация бота</h5>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="botDocumentation">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingCommands">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCommands" aria-expanded="true" aria-controls="collapseCommands">
+                                    Команды бота
+                                </button>
+                            </h2>
+                            <div id="collapseCommands" class="accordion-collapse collapse show" aria-labelledby="headingCommands" data-bs-parent="#botDocumentation">
+                                <div class="accordion-body">
+                                    <ul class="list-group">
+                                        <li class="list-group-item">
+                                            <strong>/start</strong> - Начало работы с ботом
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>/admin</strong> - Доступ к админ-панели (только для администраторов)
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingPromo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePromo" aria-expanded="false" aria-controls="collapsePromo">
+                                    Промокоды и скидки
+                                </button>
+                            </h2>
+                            <div id="collapsePromo" class="accordion-collapse collapse" aria-labelledby="headingPromo" data-bs-parent="#botDocumentation">
+                                <div class="accordion-body">
+                                    <ul class="list-group">
+                                        <li class="list-group-item">
+                                            <strong>РЫБА2025</strong> - Общий промокод, доступен всем пользователям
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>ЗОЛОТО</strong> - Особый промокод для клиентов с 3+ заказами
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>Оптовая скидка</strong> - 10% для заказов от 4 шт. (любого размера)
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFunctions">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFunctions" aria-expanded="false" aria-controls="collapseFunctions">
+                                    Функции и зависимости
+                                </button>
+                            </h2>
+                            <div id="collapseFunctions" class="accordion-collapse collapse" aria-labelledby="headingFunctions" data-bs-parent="#botDocumentation">
+                                <div class="accordion-body">
+                                    <h5>Основные компоненты</h5>
+                                    <ul class="list-group mb-3">
+                                        <li class="list-group-item">
+                                            <strong>botf.py</strong> - Основной файл бота с обработчиками команд
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>run.py</strong> - Скрипт для запуска и контроля процессов бота
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>sync_service.py</strong> - Сервис синхронизации с Notion
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>notion_integration.py</strong> - Интеграция с Notion API
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>main.py</strong> - Flask-приложение для админ-панели
+                                        </li>
+                                    </ul>
+
+                                    <h5>Зависимости</h5>
+                                    <ul class="list-group">
+                                        <li class="list-group-item">
+                                            <strong>aiogram</strong> - Асинхронная библиотека для Telegram API
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>flask</strong> - Веб-фреймворк для админ-панели
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>flask-login</strong> - Аутентификация для админ-панели
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>requests</strong> - HTTP-запросы для API
+                                        </li>
+                                        <li class="list-group-item">
+                                            <strong>sqlite3</strong> - Встроенная база данных
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для показа результатов рассылки -->
+<div class="modal fade" id="broadcastResultModal" tabindex="-1" aria-labelledby="broadcastResultModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-orange text-white">
+                <h5 class="modal-title" id="broadcastResultModalLabel">Результаты рассылки</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="broadcastResultContent">
+                <!-- Здесь будут результаты рассылки -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-orange" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Переключатель для выбора группы пользователей
+        const sendAllCheckbox = document.getElementById('sendAll');
+        const userGroupDiv = document.getElementById('userGroupDiv');
+        
+        sendAllCheckbox.addEventListener('change', function() {
+            userGroupDiv.style.display = this.checked ? 'none' : 'block';
+        });
+
+        // Обработчик кнопки скачивания бэкапа базы данных
+        const downloadBackupBtn = document.getElementById('downloadBackupBtn');
+        downloadBackupBtn.addEventListener('click', function() {
+            fetch('/api/bot_backup')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка при создании резервной копии');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `bot_backup_${timestamp}.db`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при скачивании резервной копии: ' + error.message);
+                });
+        });
+
+        // Обработчик кнопки скачивания архива файлов
+        const downloadArchiveBtn = document.getElementById('downloadArchiveBtn');
+        downloadArchiveBtn.addEventListener('click', function() {
+            fetch('/api/bot_archive')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка при создании архива');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `bot_archive_${timestamp}.zip`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при скачивании архива: ' + error.message);
+                });
+        });
+
+        // Обработчик формы рассылки
+        const broadcastForm = document.getElementById('broadcastForm');
+        const broadcastResultModal = new bootstrap.Modal(document.getElementById('broadcastResultModal'));
+        const broadcastResultContent = document.getElementById('broadcastResultContent');
+
+        broadcastForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            // Отключаем кнопку отправки
+            const submitBtn = document.getElementById('sendBroadcastBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+            
+            fetch('/api/send_broadcast', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Восстанавливаем кнопку
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить рассылку';
+                
+                if (data.success) {
+                    // Показываем результаты в модальном окне
+                    broadcastResultContent.innerHTML = `
+                        <div class="alert alert-success">Рассылка успешно отправлена</div>
+                        <p><strong>Отправлено:</strong> ${data.sent}</p>
+                        <p><strong>Ошибок:</strong> ${data.errors}</p>
+                    `;
+                    
+                    // Если есть список ошибок, показываем его
+                    if (data.error_list && data.error_list.length > 0) {
+                        let errorHtml = '<h6>Детали ошибок:</h6><ul class="list-group">';
+                        data.error_list.forEach(error => {
+                            errorHtml += `<li class="list-group-item">ID ${error.user_id}: ${error.error}</li>`;
+                        });
+                        errorHtml += '</ul>';
+                        broadcastResultContent.innerHTML += errorHtml;
+                    }
+                    
+                    // Сбрасываем форму
+                    broadcastForm.reset();
+                } else {
+                    broadcastResultContent.innerHTML = `
+                        <div class="alert alert-danger">Ошибка при отправке рассылки</div>
+                        <p>${data.error}</p>
+                    `;
+                }
+                
+                // Показываем модальное окно с результатами
+                broadcastResultModal.show();
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Отправить рассылку';
+                
+                broadcastResultContent.innerHTML = `
+                    <div class="alert alert-danger">Ошибка при отправке рассылки</div>
+                    <p>${error.message}</p>
+                `;
+                broadcastResultModal.show();
+            });
+        });
+    });
+</script>
+{% endblock %}

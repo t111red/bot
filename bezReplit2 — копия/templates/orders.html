@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}Заказы - Золотая рыбка{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Заказы</h1>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Фильтры</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-6 col-sm-12">
+                            <label for="status" class="form-label">Статус</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="">Все статусы</option>
+                                {% for status in statuses %}
+                                    <option value="{{ status.status }}" {% if status.status == status_filter %}selected{% endif %}>{{ status.status }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <button type="submit" class="btn btn-orange w-100">Применить</button>
+                        </div>
+                        {% if status_filter %}
+                            <div class="col-md-3 col-sm-6">
+                                <a href="{{ url_for('orders') }}" class="btn btn-outline-secondary w-100">Сбросить</a>
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Список заказов</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Клиент</th>
+                                    <th>Телефон</th>
+                                    <th>Товары</th>
+                                    <th>Сумма</th>
+                                    <th>Промокод</th>
+                                    <th>Статус</th>
+                                    <th>Время для звонка</th>
+                                    <th>Дата (UTC+8)</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if orders %}
+                                    {% for order in orders %}
+                                        <tr>
+                                            <td>{{ order.id }}</td>
+                                            <td>
+                                                {% if order.user_id %}
+                                                <a href="{{ url_for('user_detail', user_id=order.user_id) }}" class="text-orange">
+                                                    {{ order.full_name }}
+                                                </a>
+                                                {% else %}
+                                                <a href="{{ url_for('order_detail', order_id=order.id) }}" class="text-orange">
+                                                    {{ order.full_name }}
+                                                </a>
+                                                {% endif %}
+                                                {% if order.user_id %}
+                                                <br>
+                                                <small class="text-muted">
+                                                    ID: {{ order.user_id }}
+                                                    {% if order.username %}
+                                                        <a href="https://t.me/{{ order.username }}" target="_blank">
+                                                            (@{{ order.username }}) <i class="fas fa-external-link-alt"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                </small>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ order.phone }}</td>
+                                            <td>
+                                                {% if order.products_list %}
+                                                    <ul class="mb-0 ps-3">
+                                                    {% for item in order.products_list %}
+                                                        <li>{{ item }}</li>
+                                                    {% endfor %}
+                                                    </ul>
+                                                {% else %}
+                                                    {{ order.items|safe }}
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ order.total }}</td>
+                                            <td>{{ order.promo_used }}</td>
+                                            <td>
+                                                <div class="dropdown">
+                                                    <span class="badge rounded-pill dropdown-toggle text-white status-badge" 
+                                                        data-bs-toggle="dropdown" 
+                                                        aria-expanded="false"
+                                                        style="{% if order.status == 'Новый' %}background-color: #0dcaf0;{% endif %}
+                                                              {% if order.status == 'В работе' %}background-color: #0d6efd;{% endif %}
+                                                              {% if order.status == 'Завершён' %}background-color: #198754;{% endif %}">
+                                                        {{ order.status }}
+                                                    </span>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a class="dropdown-item status-change" href="#" data-status="Новый" data-order-id="{{ order.id }}">Новый</a></li>
+                                                        <li><a class="dropdown-item status-change" href="#" data-status="В работе" data-order-id="{{ order.id }}">В работе</a></li>
+                                                        <li><a class="dropdown-item status-change" href="#" data-status="Завершён" data-order-id="{{ order.id }}">Завершён</a></li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                            <td>{{ order.callback_time }}:00</td>
+                                            <td>{{ order.timestamp }}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ url_for('order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-orange me-1" title="Просмотр заказа">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="#" class="btn btn-sm btn-outline-danger delete-order" data-order-id="{{ order.id }}" title="Удалить заказ">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="9" class="text-center">Нет заказов</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Пагинация -->
+                    {% if total_pages > 1 %}
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item {% if page == 1 %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ url_for('orders', page=page-1, status=status_filter) }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                {% for p in range(1, total_pages + 1) %}
+                                    <li class="page-item {% if p == page %}active{% endif %}">
+                                        <a class="page-link" href="{{ url_for('orders', page=p, status=status_filter) }}">{{ p }}</a>
+                                    </li>
+                                {% endfor %}
+                                <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ url_for('orders', page=page+1, status=status_filter) }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для подтверждения удаления заказа -->
+<div class="modal fade" id="deleteOrderModal" tabindex="-1" aria-labelledby="deleteOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteOrderModalLabel">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Вы уверены, что хотите удалить заказ?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Обработчик для изменения статуса заказа
+        const statusLinks = document.querySelectorAll('.status-change');
+        statusLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const orderId = this.getAttribute('data-order-id');
+                const newStatus = this.getAttribute('data-status');
+                
+                fetch('/api/change_order_status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        status: newStatus
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Ошибка при изменении статуса: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при изменении статуса заказа.');
+                });
+            });
+        });
+        
+        // Обработка удаления заказа
+        let orderIdToDelete = null;
+        const deleteLinks = document.querySelectorAll('.delete-order');
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteOrderModal'));
+        
+        deleteLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                orderIdToDelete = this.getAttribute('data-order-id');
+                deleteModal.show();
+            });
+        });
+        
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            if (orderIdToDelete) {
+                fetch('/api/delete_order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        order_id: orderIdToDelete
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    deleteModal.hide();
+                    if (data.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Ошибка при удалении заказа: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при удалении заказа.');
+                    deleteModal.hide();
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

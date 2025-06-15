@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Лиды - Золотая рыбка{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">
+            {% if lead_type == 'expired' %}
+                Истекшие лиды
+            {% elif lead_type == 'all' %}
+                Все лиды
+            {% else %}
+                Активные лиды
+            {% endif %}
+        </h1>
+    </div>
+    
+    <!-- Вкладки для выбора типа лидов -->
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {% if lead_type == 'active' or not lead_type %}active{% endif %}" 
+                       href="{{ url_for('leads', type='active', stage=stage_filter) }}">
+                       <i class="fas fa-fire"></i> Активные
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if lead_type == 'expired' %}active{% endif %}" 
+                       href="{{ url_for('leads', type='expired', stage=stage_filter) }}">
+                       <i class="fas fa-hourglass-end"></i> Истекшие
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if lead_type == 'all' %}active{% endif %}" 
+                       href="{{ url_for('leads', type='all', stage=stage_filter) }}">
+                       <i class="fas fa-list"></i> Все
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Фильтры</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <input type="hidden" name="type" value="{{ lead_type }}">
+                        <!-- Колонка "Этап" убрана по требованию заказчика -->
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-orange w-100">Применить</button>
+                        </div>
+                        {% if stage_filter %}
+                            <div class="col-md-2">
+                                <a href="{{ url_for('leads', type=lead_type) }}" class="btn btn-outline-secondary w-100">Сбросить</a>
+                            </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Список лидов</h5>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Клиент</th>
+                                    <th>Телефон</th>
+                                    <th width="25%">Товары</th>
+                                    <th width="80px">Заказов</th>
+                                    <th>Дата (UTC+8)</th>
+                                    <th>Этап</th>
+                                    <th width="100px">Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if leads %}
+                                    {% for lead in leads %}
+                                        <tr>
+                                            <td>{{ lead.id }}</td>
+                                            <td>
+                                                <a href="{{ url_for('user_detail', user_id=lead.user_id) }}" class="text-orange">
+                                                    {{ lead.name }}
+                                                    <br>
+                                                <small class="text-muted">
+                                                    ID: {{ lead.user_id }}
+                                                    {% if lead.username %}
+                                                        <a href="https://t.me/{{ lead.username }}" target="_blank" class="text-primary">
+                                                            (@{{ lead.username }}) <i class="fas fa-external-link-alt"></i>
+                                                        </a>
+                                                    {% else %}
+                                                        <a href="tg://user?id={{ lead.user_id }}" target="_blank" class="text-primary">
+                                                            <i class="fas fa-external-link-alt"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                </small>
+                                                </a>
+                                                {% if lead.is_repeat %}
+                                                    <span class="badge bg-info ms-1" title="Повторный клиент">П</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ lead.phone }}</td>
+                                            <td>{{ lead.items }}</td>
+                                            <td class="text-center">
+                                                <span class="badge {% if lead.orders_count > 0 %}bg-success{% else %}bg-secondary{% endif %}">
+                                                    {{ lead.orders_count }}
+                                                </span>
+                                            </td>
+                                            <td>{{ lead.timestamp }}</td>
+                                            <td>{{ lead.stage }}</td>
+                                            <td>
+                                                {% if lead.expired == 1 %}
+                                                    <span class="badge bg-warning text-dark">Истекший</span>
+                                                {% else %}
+                                                    <span class="badge bg-success">Активный</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ url_for('user_detail', user_id=lead.user_id) }}" class="btn btn-sm btn-outline-orange" title="Профиль клиента">
+                                                        <i class="fas fa-user"></i>
+                                                    </a>
+                                                    {% if lead.order_id %}
+                                                    <a href="{{ url_for('order_detail', order_id=lead.order_id) }}" class="btn btn-sm btn-outline-success" title="Связанный заказ">
+                                                        <i class="fas fa-shopping-cart"></i>
+                                                    </a>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="8" class="text-center">Нет активных лидов</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Пагинация -->
+                    {% if total_pages > 1 %}
+                        <nav aria-label="Page navigation" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item {% if page == 1 %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ url_for('leads', page=page-1, stage=stage_filter, type=lead_type) }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                {% for p in range(1, total_pages + 1) %}
+                                    <li class="page-item {% if p == page %}active{% endif %}">
+                                        <a class="page-link" href="{{ url_for('leads', page=p, stage=stage_filter, type=lead_type) }}">{{ p }}</a>
+                                    </li>
+                                {% endfor %}
+                                <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                                    <a class="page-link" href="{{ url_for('leads', page=page+1, stage=stage_filter, type=lead_type) }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

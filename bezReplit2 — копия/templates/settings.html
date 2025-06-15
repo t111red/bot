@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block title %}Настройки - Золотая рыбка{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Настройки</h1>
+    </div>
+
+    <!-- Статусы сервисов -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="mb-0">Статус сервисов</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6 col-sm-12 mb-3">
+                            <div class="status-card">
+                                <div class="d-flex align-items-center">
+                                    <div class="status-indicator {% if process_status.bot %}status-online{% else %}status-offline{% endif %}" 
+                                         style="width: 12px; height: 12px;"></div>
+                                    <div class="ms-3">
+                                        <h5 class="mb-1">Telegram бот:</h5>
+                                        <p class="mb-0 text-white fw-bold" style="font-size: 1.1rem;">
+                                            {% if process_status.bot %}<span class="text-success">Активен</span>{% else %}<span class="text-danger">Неактивен</span>{% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline-orange mt-3 w-100" id="restart-bot">
+                                    <i class="fas fa-sync-alt me-2"></i>
+                                    Перезапустить
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-12">
+                            <div class="status-card">
+                                <div class="d-flex align-items-center">
+                                    <div class="status-indicator {% if process_status.sync %}status-online{% else %}status-offline{% endif %}"
+                                         style="width: 12px; height: 12px;"></div>
+                                    <div class="ms-3">
+                                        <h5 class="mb-1">Сервис синхронизации:</h5>
+                                        <p class="mb-0 text-white fw-bold" style="font-size: 1.1rem;">
+                                            {% if process_status.sync %}<span class="text-success">Активен</span>{% else %}<span class="text-danger">Неактивен</span>{% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline-orange mt-3 w-100" id="restart-sync">
+                                    <i class="fas fa-sync me-2"></i>
+                                    Перезапустить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Общие настройки бота -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="mb-0">Общие настройки</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="working_hours_start" class="form-label">Начало рабочего дня</label>
+                            <input type="time" class="form-control" id="working_hours_start" name="working_hours_start" value="{{ settings.working_hours_start }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="working_hours_end" class="form-label">Конец рабочего дня</label>
+                            <input type="time" class="form-control" id="working_hours_end" name="working_hours_end" value="{{ settings.working_hours_end }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="admin_telegram_ids" class="form-label">ID администраторов в Telegram</label>
+                            <textarea class="form-control" id="admin_telegram_ids" name="admin_telegram_ids" rows="3" placeholder="Введите ID через запятую">{{ settings.admin_telegram_ids }}</textarea>
+                            <div class="form-text">Введите Telegram ID администраторов через запятую (например: 123456789, 987654321)</div>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifications_enabled" name="notifications_enabled" {% if settings.notifications_enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="notifications_enabled">Включить уведомления</label>
+                        </div>
+                        <button type="submit" class="btn btn-orange">Сохранить настройки</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.status-card {
+    background-color: rgba(33, 37, 41, 0.6);
+    border-radius: 8px;
+    padding: 20px;
+    height: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-indicator {
+    border-radius: 50%;
+    background-color: #dc3545;
+    position: relative;
+}
+
+.status-indicator.status-online {
+    background-color: #28a745;
+    box-shadow: 0 0 6px rgba(40, 167, 69, 0.6);
+}
+
+.status-indicator.status-offline {
+    background-color: #dc3545;
+    box-shadow: 0 0 6px rgba(220, 53, 69, 0.6);
+}
+
+.status-indicator::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border-radius: 50%;
+    border: 2px solid;
+    border-color: inherit;
+    opacity: 0.4;
+}
+
+.status-text {
+    color: #ccc;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .status-card {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Получаем сохраненные настройки из localStorage
+        const savedHoursStart = localStorage.getItem('working_hours_start');
+        const savedHoursEnd = localStorage.getItem('working_hours_end');
+        const savedAdminIds = localStorage.getItem('admin_telegram_ids');
+        const savedNotifications = localStorage.getItem('notifications_enabled');
+        
+        // Если есть сохраненные настройки, устанавливаем их в форму
+        if (savedHoursStart && !document.getElementById('working_hours_start').value) {
+            document.getElementById('working_hours_start').value = savedHoursStart;
+        }
+        
+        if (savedHoursEnd && !document.getElementById('working_hours_end').value) {
+            document.getElementById('working_hours_end').value = savedHoursEnd;
+        }
+        
+        if (savedAdminIds && !document.getElementById('admin_telegram_ids').value) {
+            document.getElementById('admin_telegram_ids').value = savedAdminIds;
+        }
+        
+        if (savedNotifications === 'true') {
+            document.getElementById('notifications_enabled').checked = true;
+        } else if (savedNotifications === 'false') {
+            document.getElementById('notifications_enabled').checked = false;
+        }
+        
+        // Сохраняем значения в localStorage при отправке формы
+        document.querySelector('form').addEventListener('submit', function() {
+            localStorage.setItem('working_hours_start', document.getElementById('working_hours_start').value);
+            localStorage.setItem('working_hours_end', document.getElementById('working_hours_end').value);
+            localStorage.setItem('admin_telegram_ids', document.getElementById('admin_telegram_ids').value);
+            localStorage.setItem('notifications_enabled', document.getElementById('notifications_enabled').checked);
+        });
+        
+        // Обработчик для перезапуска бота
+        const restartBotBtn = document.getElementById('restart-bot');
+        if (restartBotBtn) {
+            restartBotBtn.addEventListener('click', function() {
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Перезапуск...';
+                
+                fetch('/api/restart_bot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 3000);
+                    } else {
+                        alert('Ошибка при перезапуске бота: ' + data.message);
+                        restartBotBtn.disabled = false;
+                        restartBotBtn.innerHTML = '<i class="fas fa-sync-alt me-2"></i> Перезапустить';
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при перезапуске бота.');
+                    restartBotBtn.disabled = false;
+                    restartBotBtn.innerHTML = '<i class="fas fa-sync-alt me-2"></i> Перезапустить';
+                });
+            });
+        }
+
+        // Обработчик для перезапуска сервиса синхронизации
+        const restartSyncBtn = document.getElementById('restart-sync');
+        if (restartSyncBtn) {
+            restartSyncBtn.addEventListener('click', function() {
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Перезапуск...';
+                
+                fetch('/api/restart_sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 3000);
+                    } else {
+                        alert('Ошибка при перезапуске сервиса синхронизации: ' + data.message);
+                        restartSyncBtn.disabled = false;
+                        restartSyncBtn.innerHTML = '<i class="fas fa-sync me-2"></i> Перезапустить';
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при перезапуске сервиса синхронизации.');
+                    restartSyncBtn.disabled = false;
+                    restartSyncBtn.innerHTML = '<i class="fas fa-sync me-2"></i> Перезапустить';
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

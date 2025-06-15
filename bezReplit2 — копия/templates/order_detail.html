@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Заказ #{{ order.id }} - Золотая рыбка{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <div class="d-flex align-items-center">
+            <img src="/static/img/fish-logo.png" alt="Логотип Золотая рыбка" style="height: 40px; margin-right: 15px;">
+            <h1 class="h2">Заказ #{{ order.id }}</h1>
+        </div>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{{ url_for('orders') }}" class="btn btn-outline-orange me-2">
+                <i class="fas fa-arrow-left"></i>
+                Назад к списку
+            </a>
+            <button id="deleteOrderBtn" class="btn btn-outline-danger" title="Удалить заказ">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Информация о заказе -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="mb-0">Информация о заказе</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <strong>Статус:</strong>
+                            <span class="badge rounded-pill text-white" 
+                                style="
+                                {% if order.status == 'Новый' %}background-color: #0dcaf0;{% endif %}
+                                {% if order.status == 'В работе' %}background-color: #0d6efd;{% endif %}
+                                {% if order.status == 'Завершён' %}background-color: #198754;{% endif %}
+                                padding: 6px 12px;">
+                                {{ order.status }}
+                            </span>
+                            <small class="text-muted d-block mt-1">(Изменение статуса доступно в списке заказов)</small>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Дата создания:</strong>
+                            <span>{{ order.timestamp }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Сумма:</strong>
+                            <span>{{ order.total }} ₽</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Клиент:</strong>
+                            <a href="{{ url_for('user_detail', user_id=order.user_id) }}" class="text-orange">
+                                {{ order.full_name }}
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Телефон:</strong>
+                            <span>{{ order.phone }}</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Товары:</strong>
+                            <ul class="mt-2 ps-3">
+                                {% if order.products_list %}
+                                    {% for item in order.products_list %}
+                                        <li>
+                                            {% if 'Бонус: книга' in item %}
+                                                <a href="{{ url_for('static', filename='files/101 Дымный рецепт.pdf') }}" target="_blank" class="text-orange">
+                                                    {{ item }} <i class="fas fa-download ms-1"></i>
+                                                </a>
+                                            {% else %}
+                                                {{ item }}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li>Товары не указаны</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Промокод:</strong>
+                            <span>{{ order.promo_used if order.promo_used else 'Не использован' }}</span>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Дополнительная информация -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="mb-0">Дополнительная информация</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Время обратного звонка:</strong>
+                        <p>{{ order.callback_time if order.callback_time else 'Не указано' }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <strong>ID в Telegram:</strong>
+                        <p>
+                            {% if order.user_id %}
+                                {% if order.username %}
+                                    <a href="https://t.me/{{ order.username }}" target="_blank" class="text-primary">
+                                        {{ order.user_id }} (@{{ order.username }})
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                {% else %}
+                                    <a href="tg://user?id={{ order.user_id }}" target="_blank" class="text-primary">
+                                        {{ order.user_id }}
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                Нет информации
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <strong>Статус лида:</strong>
+                        <p class="mb-0">{{ order.notion_status if order.notion_status else 'Не синхронизирован' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <h5 class="mb-0">История изменений</h5>
+                </div>
+                <div class="card-body">
+                    {% if status_history %}
+                        <div class="timeline">
+                            {% for status in status_history %}
+                                <div class="timeline-item">
+                                    <div class="timeline-marker
+                                        {% if status.status == 'Новый' %}bg-info{% endif %}
+                                        {% if status.status == 'В работе' %}bg-primary{% endif %}
+                                        {% if status.status == 'Завершён' %}bg-success{% endif %}
+                                    "></div>
+                                    <div class="timeline-content">
+                                        <p class="mb-0"><strong>{{ status.status }}</strong></p>
+                                        <small class="text-muted">{{ status.timestamp }}</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">История изменений отсутствует</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для подтверждения удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Подтверждение удаления</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить заказ #{{ order.id }}?</p>
+                <p class="text-danger"><strong>Внимание:</strong> Это действие невозможно отменить.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Удалить</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.timeline {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 0.25rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-item {
+    margin-bottom: 1rem;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    transform: translateX(-5px);
+}
+
+.timeline-content {
+    padding-left: 0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteOrderBtn = document.getElementById('deleteOrderBtn');
+    const confirmDeleteBtn = document.getElementById('confirmDelete');
+    
+    // Инициализация модального окна
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    
+    // Открытие модального окна
+    deleteOrderBtn.addEventListener('click', function() {
+        deleteModal.show();
+    });
+    
+    // Подтверждение удаления
+    confirmDeleteBtn.addEventListener('click', function() {
+        fetch('/api/delete_order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                order_id: {{ order.id }}
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = "{{ url_for('orders') }}";
+            } else {
+                alert('Ошибка при удалении заказа: ' + data.message);
+                deleteModal.hide();
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при удалении заказа.');
+            deleteModal.hide();
+        });
+    });
+});
+</script>
+{% endblock %}

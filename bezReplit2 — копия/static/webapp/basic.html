@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ рыбы - Золотая рыбка</title>
+    <style>
+        :root {
+            --tg-theme-bg-color: #ffffff;
+            --tg-theme-text-color: #000000;
+            --tg-theme-hint-color: #999999;
+            --tg-theme-link-color: #f57c00;
+            --tg-theme-button-color: #f57c00;
+            --tg-theme-button-text-color: #ffffff;
+            --primary-color: #f57c00;
+            --secondary-color: #ffb74d;
+            --accent-color: #ff9800;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+        }
+        
+        [data-theme="dark"] {
+            --tg-theme-bg-color: #1f1f1f;
+            --tg-theme-text-color: #ffffff;
+            --tg-theme-hint-color: #aaaaaa;
+            --tg-theme-link-color: #ffb74d;
+            --tg-theme-button-color: #f57c00;
+            --tg-theme-button-text-color: #ffffff;
+            --primary-color: #ffb74d;
+            --secondary-color: #ffe0b2;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary-color);
+        }
+        
+        .step-section {
+            display: none;
+            margin-bottom: 20px;
+        }
+        
+        .step-section:first-of-type {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        
+        [data-theme="dark"] .form-control {
+            background-color: #333;
+            color: #eee;
+            border-color: #555;
+        }
+        
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--tg-theme-button-color);
+            color: var(--tg-theme-button-color);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .fish-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .counter {
+            display: flex;
+            align-items: center;
+        }
+        
+        .count {
+            margin: 0 10px;
+            font-weight: bold;
+        }
+        
+        .cart-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .discount-message {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: bold;
+            display: none;
+        }
+        
+        [data-theme="dark"] .discount-message {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .promo-valid {
+            color: var(--success-color);
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .promo-invalid {
+            color: var(--danger-color);
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .error-message {
+            color: var(--danger-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .thank-you-container {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .thank-you-container .icon {
+            font-size: 48px;
+            color: var(--success-color);
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar-container {
+            height: 5px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--success-color);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        #debug, #log-container {
+            display: none !important;
+            visibility: hidden;
+        }
+    </style>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="/webapp/app-updated.js?v=3"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container" style="text-align: center; margin-bottom: 20px;">
+            <img src="/webapp/img/fish-logo.png" alt="Золотая рыбка" style="max-width: 120px; height: auto;">
+        </div>
+        <h1>Заказ рыбы</h1>
+        
+        <div class="progress-bar-container">
+            <div class="progress-bar"></div>
+        </div>
+        
+        <!-- Шаг 1: Контактная информация -->
+        <div class="step-section" id="step1">
+            <h2>Шаг 1: Контактная информация</h2>
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="fullName">Ваше имя*</label>
+                    <input type="text" class="form-control" id="fullName" placeholder="Введите ваше имя">
+                    <div class="error-message" id="fullName-error">Пожалуйста, введите ваше имя</div>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Номер телефона*</label>
+                    <input type="tel" class="form-control" id="phone" placeholder="+7 (XXX) XXX-XX-XX">
+                    <div class="error-message" id="phone-error">Пожалуйста, введите корректный номер телефона</div>
+                </div>
+                <div class="nav-buttons">
+                    <div></div> <!-- Пустой div для выравнивания -->
+                    <button class="btn btn-success" id="nextToStep2">Далее</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Шаг 2: Выбор рыбы -->
+        <div class="step-section" id="step2">
+            <h2>Шаг 2: Выберите рыбу</h2>
+            <div class="fish-container">
+                <div class="fish-item">
+                    <span>Маленькая</span>
+                    <div class="counter">
+                        <button class="btn btn-danger btn-small" id="small-minus">-</button>
+                        <span class="count" id="small-count">0</span>
+                        <button class="btn btn-success btn-small" id="small-plus">+</button>
+                    </div>
+                </div>
+                
+                <div class="fish-item">
+                    <span>Средняя</span>
+                    <div class="counter">
+                        <button class="btn btn-danger btn-small" id="medium-minus">-</button>
+                        <span class="count" id="medium-count">0</span>
+                        <button class="btn btn-success btn-small" id="medium-plus">+</button>
+                    </div>
+                </div>
+                
+                <div class="fish-item">
+                    <span>Крупная</span>
+                    <div class="counter">
+                        <button class="btn btn-danger btn-small" id="large-minus">-</button>
+                        <span class="count" id="large-count">0</span>
+                        <button class="btn btn-success btn-small" id="large-plus">+</button>
+                    </div>
+                </div>
+                
+                <div class="discount-message" id="wholesale-discount">
+                    У вас оптовый заказ! Скидка 10% будет применена.
+                </div>
+                
+                <button class="btn btn-success" id="add-to-cart">Добавить в корзину</button>
+                
+                <div class="cart-container" id="cart-container">
+                    <h3>Ваша корзина</h3>
+                    <div id="cart-items">
+                        <p>Корзина пуста</p>
+                    </div>
+                    <div class="error-message" id="cart-error">Пожалуйста, добавьте хотя бы один товар в корзину</div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-outline" id="backToStep1">Назад</button>
+                    <button class="btn btn-success" id="goToStep3">Далее</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Шаг 3: Промокод -->
+        <div class="step-section" id="step3">
+            <h2>Шаг 3: Промокод</h2>
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="promoCode">Промокод (если есть)</label>
+                    <input type="text" class="form-control" id="promoCode" placeholder="Введите промокод">
+                    <div class="promo-valid" id="promo-valid">Промокод применён!</div>
+                    <div class="promo-invalid" id="promo-invalid">Неверный промокод или условия не выполнены</div>
+                </div>
+                <button class="btn btn-outline" id="check-promo">Проверить промокод</button>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-outline" id="backToStep2">Назад</button>
+                    <button class="btn btn-success" id="goToStep4">Далее</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Шаг 4: Время для звонка -->
+        <div class="step-section" id="step4">
+            <h2>Шаг 4: Время для звонка</h2>
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="callbackTime">Выберите удобное время для звонка</label>
+                    <select class="form-control" id="callbackTime">
+                        <option value="9">9:00</option>
+                        <option value="10">10:00</option>
+                        <option value="11">11:00</option>
+                        <option value="12" selected>12:00</option>
+                        <option value="13">13:00</option>
+                        <option value="14">14:00</option>
+                        <option value="15">15:00</option>
+                        <option value="16">16:00</option>
+                        <option value="17">17:00</option>
+                    </select>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-outline" id="backToStep3">Назад</button>
+                    <button class="btn btn-success" id="placeOrder">Завершить</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Шаг 5: Сводка заказа -->
+        <div class="step-section" id="step5">
+            <h2>Ваш заказ</h2>
+            <div class="form-container">
+                <h3>Информация о заказе</h3>
+                <p><strong>Имя:</strong> <span id="summary-name"></span></p>
+                <p><strong>Телефон:</strong> <span id="summary-phone"></span></p>
+                <p><strong>Время для звонка:</strong> <span id="summary-time"></span></p>
+                <p><strong>Промокод:</strong> <span id="summary-promo">Не указан</span></p>
+                
+                <h3>Выбранные товары</h3>
+                <div id="summary-items"></div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-outline" id="backToStep4">Изменить</button>
+                    <button class="btn btn-success" id="submit-order">Отправить заказ</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Шаг 6: Благодарность за заказ -->
+        <div class="step-section" id="step6">
+            <div class="thank-you-container">
+                <div class="icon">✓</div>
+                <h2>Спасибо за заказ!</h2>
+                <p id="order-success-message">Ваш заказ успешно отправлен.</p>
+                <p>Мы свяжемся с вами в выбранное время, чтобы уточнить детали.</p>
+                <div class="success-details" id="success-details">
+                    <p class="order-number" id="order-number"></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Модальное окно с ошибкой -->
+        <div class="modal" id="error-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 1000; align-items: center; justify-content: center;">
+            <div class="modal-content" style="position: relative; background-color: var(--tg-theme-bg-color); margin: 15% auto; padding: 30px; border-radius: 8px; max-width: 500px; text-align: center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);">
+                <span class="close-button" style="position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--secondary-color); transition: color 0.3s;">&times;</span>
+                <h2>Ошибка</h2>
+                <p id="error-message">Произошла ошибка при отправке заказа. Пожалуйста, попробуйте снова или свяжитесь с нами через бота.</p>
+                <button class="btn btn-outline" id="close-error">Закрыть</button>
+            </div>
+        </div>
+        
+        <div id="log-container"></div>
+    </div>
+</body>
+</html>
